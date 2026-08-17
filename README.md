@@ -8,6 +8,6 @@ F 项目独立静态站点：
 
 客户输入不做格式验证，填写内容会按原样进入 F 项目独立数据表。
 
-客户提交成功后会显示姓名复制与专员 LINE 引导。LINE 链接、显示 ID 和多个 Facebook Pixel ID 均可从后台“系统设置”修改。
+客户提交成功后会显示姓名与专员 LINE 引导，并在 3 秒后自动跳转。LINE 链接、显示 ID 和多个 Facebook Pixel ID 均可从后台“系统设置”修改。
 
 Supabase 项目：`xgjnmhedqwehxgwnlggo`。后台使用现有 `admin@taiwan-subsidy.com` Auth 账号登录。

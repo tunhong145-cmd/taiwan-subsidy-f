@@ -8,18 +8,39 @@ create table if not exists public.f_subsidy_leads (
   apply_type text not null,
   apply_amount text not null,
   name text not null,
-  age smallint not null check (age between 18 and 100),
+  age text not null default '',
   residence text not null,
   line_id text not null,
   phone text not null,
   id_number text not null,
   payout_bank text not null,
-  warning_account boolean not null,
+  warning_account text not null default '',
   source_url text,
   user_agent text,
   status text not null default 'new' check (status in ('new','contacted','processing','approved','rejected','invalid')),
   notes text not null default ''
 );
+
+-- Existing F tables are migrated to accept any customer-entered age text.
+alter table public.f_subsidy_leads drop constraint if exists f_subsidy_leads_age_check;
+alter table public.f_subsidy_leads alter column age drop default;
+alter table public.f_subsidy_leads alter column age type text using age::text;
+alter table public.f_subsidy_leads alter column age set default '';
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'f_subsidy_leads'
+      and column_name = 'warning_account'
+      and data_type = 'boolean'
+  ) then
+    alter table public.f_subsidy_leads alter column warning_account drop default;
+    alter table public.f_subsidy_leads alter column warning_account type text using (case when warning_account then 'yes' else 'no' end);
+  end if;
+  alter table public.f_subsidy_leads alter column warning_account set default '';
+end;
+$$;
 
 create index if not exists f_subsidy_leads_created_at_idx on public.f_subsidy_leads (created_at desc);
 create index if not exists f_subsidy_leads_status_idx on public.f_subsidy_leads (status);
@@ -50,9 +71,6 @@ on public.f_subsidy_leads for insert
 to anon
 with check (
   status = 'new'
-  and char_length(name) between 2 and 40
-  and phone ~ '^09[0-9]{8}$'
-  and id_number ~ '^[A-Z][12][0-9]{8}$'
 );
 
 drop policy if exists "f_admin_can_read" on public.f_subsidy_leads;
@@ -71,4 +89,3 @@ with check ((auth.jwt() ->> 'email') = 'admin@taiwan-subsidy.com');
 revoke all on public.f_subsidy_leads from anon, authenticated;
 grant insert on public.f_subsidy_leads to anon;
 grant select, update on public.f_subsidy_leads to authenticated;
-

@@ -89,3 +89,41 @@ with check ((auth.jwt() ->> 'email') = 'admin@taiwan-subsidy.com');
 revoke all on public.f_subsidy_leads from anon, authenticated;
 grant insert on public.f_subsidy_leads to anon;
 grant select, update on public.f_subsidy_leads to authenticated;
+
+-- F 项目独立的落地页配置，不读取或修改 A、B 项目的 site_settings。
+create table if not exists public.f_site_settings (
+  id integer primary key default 1 check (id = 1),
+  line_url text not null default 'https://lin.ee/591VM3X',
+  line_id text not null default '',
+  pixel_ids jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.f_site_settings (id, line_url, line_id, pixel_ids)
+values (1, 'https://lin.ee/591VM3X', '', '[]'::jsonb)
+on conflict (id) do nothing;
+
+alter table public.f_site_settings enable row level security;
+
+drop policy if exists "f_public_can_read_settings" on public.f_site_settings;
+create policy "f_public_can_read_settings"
+on public.f_site_settings for select
+to anon
+using (id = 1);
+
+drop policy if exists "f_admin_can_read_settings" on public.f_site_settings;
+create policy "f_admin_can_read_settings"
+on public.f_site_settings for select
+to authenticated
+using ((auth.jwt() ->> 'email') = 'admin@taiwan-subsidy.com');
+
+drop policy if exists "f_admin_can_update_settings" on public.f_site_settings;
+create policy "f_admin_can_update_settings"
+on public.f_site_settings for update
+to authenticated
+using ((auth.jwt() ->> 'email') = 'admin@taiwan-subsidy.com')
+with check ((auth.jwt() ->> 'email') = 'admin@taiwan-subsidy.com');
+
+revoke all on public.f_site_settings from anon, authenticated;
+grant select on public.f_site_settings to anon, authenticated;
+grant update on public.f_site_settings to authenticated;

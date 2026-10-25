@@ -228,12 +228,26 @@ begin
   if not public.f_master_ok() then raise exception 'not authorized'; end if;
   if length(coalesce(p_password,'')) < 6 then raise exception 'password too short'; end if;
   lock table public.f_pages in share row exclusive mode;
-  select coalesce(max(substring(slug from 5)::integer),0)+1 into next_number
-  from public.f_pages where slug ~ '^page[1-9][0-9]*$';
+  select coalesce(max(n),0)+1 into next_number from (
+    select substring(slug from 5)::integer as n from public.f_pages where slug ~ '^page[1-9][0-9]*$'
+    union all
+    select substring(page_slug from 5)::integer as n from public.f_subsidy_leads where page_slug ~ '^page[1-9][0-9]*$'
+  ) used_numbers;
   insert into public.f_pages(slug,operator_note,line_url,line_id,pixel_ids,password_hash)
   values('page'||next_number,coalesce(p_operator_note,''),coalesce(p_line_url,''),coalesce(p_line_id,''),coalesce(p_pixel_ids,'[]'::jsonb),crypt(p_password,gen_salt('bf')))
   returning * into new_page;
   return to_jsonb(new_page)-'password_hash';
+end;
+$$;
+
+create or replace function public.delete_f_page(target_slug text)
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  if not public.f_master_ok() then raise exception 'not authorized'; end if;
+  if target_slug = 'main' then raise exception 'main page cannot be deleted'; end if;
+  delete from public.f_pages where slug = target_slug;
+  if not found then raise exception 'page not found'; end if;
+  return true;
 end;
 $$;
 

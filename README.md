@@ -6,7 +6,7 @@ F 项目独立静态站点：
 - `admins.html`：主管理员全部订单后台，可按投手筛选
 - `agents.html`：投手 Page 管理，自动生成 `page1`、`page2`、`page3`……
 - `agent.html?page=page1`：投手独立订单后台
-- 旧的 `admin.html`、`pages-admin.html`、`page-admin.html` 会保留查询参数并自动跳转到新地址
+- 旧的 `admin.html`、`pages-admin.html`、`page-admin.html` 已停用，不再提供跳转
 - `/`：`main` 默认投手落地页
 - `/?page=page1`：其他投手独立落地页
 - `supabase-schema.sql`：只管理 F 专用数据表，不修改 A、B 或其他数据表

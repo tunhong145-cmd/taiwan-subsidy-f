@@ -3,6 +3,7 @@
 F 项目独立静态站点：
 
 - `landing.html?page=main`：正式投放落地页
+- `form.html?page=main`：独立申请表单页
 - `admins.html`：主管理员全部订单后台，可按投手筛选
 - `agents.html`：投手 Page 管理，自动生成 `page1`、`page2`、`page3`……
 - `agent.html?page=page1`：投手独立订单后台

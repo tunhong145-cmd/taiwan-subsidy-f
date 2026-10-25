@@ -2,13 +2,13 @@
 
 F 项目独立静态站点：
 
-- `index.html`：4 步补助申请落地页
+- `landing.html?page=main`：正式投放落地页
 - `admins.html`：主管理员全部订单后台，可按投手筛选
 - `agents.html`：投手 Page 管理，自动生成 `page1`、`page2`、`page3`……
 - `agent.html?page=page1`：投手独立订单后台
 - 旧的 `admin.html`、`pages-admin.html`、`page-admin.html` 已停用，不再提供跳转
-- `/?page=main`：`main` 默认投手落地页
-- `/?page=page1`：其他投手独立落地页；裸域名 `/` 显示 404
+- `/landing.html?page=main`：`main` 默认投手落地页
+- `/landing.html?page=page1`：其他投手独立落地页；裸域名和旧的 `/?page=...` 地址显示 404
 - `supabase-schema.sql`：只管理 F 专用数据表，不修改 A、B 或其他数据表
 
 所有表单项目都必须填写，但不检查姓名、年龄、电话、身份证等内容格式；客户填写内容会按原样进入 F 项目独立数据表。
